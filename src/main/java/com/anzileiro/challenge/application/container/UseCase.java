@@ -9,7 +9,6 @@ import com.anzileiro.challenge.infrastructure.repository.LogRepositoryImplementa
 public class UseCase {
 
     private LogRepositoryImplementation repository;
-    private Factory factory;
 
     public UseCase(LogRepositoryImplementation repository) {
         this.repository = repository;

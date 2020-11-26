@@ -1,9 +1,7 @@
 package com.anzileiro.challenge.domain.usecase;
 
 import java.net.URI;
-import java.util.UUID;
 
-import com.anzileiro.challenge.application.container.Factory;
 import com.anzileiro.challenge.domain.Log;
 import com.anzileiro.challenge.domain.LogRepository;
 
