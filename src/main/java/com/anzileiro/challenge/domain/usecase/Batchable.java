@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.stream.Stream;
 
-import com.anzileiro.challenge.application.container.Factory;
 import com.anzileiro.challenge.domain.Log;
 import com.anzileiro.challenge.domain.LogRepository;
 
@@ -16,13 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class Batchable {
 
     private LogRepository repository;
+    private ArrayList<Log> logs;
+    private int quantity;
 
-    public Batchable(LogRepository repository, Factory factory) {
+    public Batchable(LogRepository repository) {
         this.repository = repository;
-        // this.factory = factory;
+        this.logs = new ArrayList<Log>();
+        this.quantity = 0;
     }
 
-    private void verify(MultipartFile file) {
+    private void validate(MultipartFile file) {
         if (file.isEmpty()) {
             throw new RuntimeException("The file provided is empty");
         }
@@ -38,36 +39,56 @@ public class Batchable {
         return splited;
     }
 
+    private void addLogs(BufferedReader reader) {
+        reader.lines().forEach(line -> {
+
+            String[] splited = this.setSplited(line);
+
+            Log log = new Log(
+                UUID.randomUUID(), 
+                splited[0], 
+                splited[1], 
+                splited[2], 
+                Integer.parseInt(splited[3]),
+                splited[4]
+            );
+
+            logs.add(log);
+
+        });
+
+        this.setQuantity(logs.size());
+    }
+
+    private ArrayList<Log> getLogs() {
+        return this.logs;
+    }
+
+    private void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    private int getQuantity() {
+        return this.quantity;
+    }
+
     public String execute(MultipartFile file) {
 
         try {
 
-            this.verify(file);
+            this.validate(file);
 
-            BufferedReader reader = this.setReader(file);
+            this.addLogs(this.setReader(file));
 
-            ArrayList<Log> logs = new ArrayList<Log>();
-
-            reader.lines().forEach(line -> {
-
-                String[] splited = this.setSplited(line);
-
-                logs.add(new Log(UUID.randomUUID(), splited[0], splited[1], splited[2], Integer.parseInt(splited[3]),
-                        splited[4]));
-
-            });
-
-            int size = logs.size();
-
-            System.out.println(String.format("List size: %s", size));
+            System.out.println(String.format("List size: %s", this.getQuantity()));
 
             System.out.println("List formated.");
 
-            this.repository.insertMany(logs);
+            this.repository.insertMany(this.getLogs());
 
             System.out.println("List inserted.");
 
-            return String.valueOf(size);
+            return String.valueOf(this.getQuantity());
 
         } catch (Exception e) {
             return e.getMessage();

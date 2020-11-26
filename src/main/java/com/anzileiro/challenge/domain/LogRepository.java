@@ -1,7 +1,6 @@
 package com.anzileiro.challenge.domain;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public interface LogRepository {
@@ -11,8 +10,8 @@ public interface LogRepository {
     void updateOne(UUID id, Log log);
 
     Log findOneById(UUID id);
-    List<Log> findManyByDate(String date);
-    List<Log> findManyByStatus(String status);
-    List<Log> findManyByRequest(String request);
-    List<Log> findManyByAgent(String agent);
+    ArrayList<Log> findManyByDate(String date);
+    ArrayList<Log> findManyByStatus(String status);
+    ArrayList<Log> findManyByRequest(String request);
+    ArrayList<Log> findManyByAgent(String agent);
 }

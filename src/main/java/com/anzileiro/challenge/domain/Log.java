@@ -14,14 +14,6 @@ public class Log {
     protected Log() {
     }
 
-    public Log(String date, String ip, String request, Integer status, String agent) {
-        this.date = date;
-        this.ip = ip;
-        this.request = request;
-        this.status = status;
-        this.agent = agent;
-    }
-
     public Log(UUID id, String date, String ip, String request, Integer status, String agent) {
         this.id = id;
         this.date = date;

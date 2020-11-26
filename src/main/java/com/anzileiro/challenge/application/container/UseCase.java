@@ -3,16 +3,16 @@ package com.anzileiro.challenge.application.container;
 import com.anzileiro.challenge.domain.usecase.Batchable;
 import com.anzileiro.challenge.domain.usecase.Creatable;
 import com.anzileiro.challenge.domain.usecase.Fetchable;
+import com.anzileiro.challenge.domain.usecase.Searchable;
 import com.anzileiro.challenge.infrastructure.repository.LogRepositoryImplementation;
 
 public class UseCase {
 
-    private Factory factory;
     private LogRepositoryImplementation repository;
+    private Factory factory;
 
     public UseCase(LogRepositoryImplementation repository) {
         this.repository = repository;
-        this.factory = new Factory();
     }
 
     public Fetchable fetchable() {
@@ -20,11 +20,15 @@ public class UseCase {
     }
 
     public Creatable createble() {
-        return new Creatable(this.repository, this.factory);
+        return new Creatable(this.repository);
     }
 
     public Batchable batchable() {
-        return new Batchable(this.repository, this.factory);
+        return new Batchable(this.repository);
+    }
+
+    public Searchable searchable() {
+        return new Searchable(this.repository);
     }
 
 }

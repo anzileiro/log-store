@@ -1,5 +1,6 @@
 package com.anzileiro.challenge.application.rest;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 import com.anzileiro.challenge.application.container.UseCase;
@@ -27,6 +28,12 @@ public class LogController {
     @ResponseBody
     public ResponseEntity<Log> findOneById(@PathVariable UUID id) {
         return new ResponseEntity<Log>(this.useCase.fetchable().execute(id), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/date/{date}")
+    @ResponseBody
+    public ResponseEntity<ArrayList<Log>> findAllByDate(@PathVariable String date) {
+        return new ResponseEntity<ArrayList<Log>>(this.useCase.searchable().execute(date), HttpStatus.OK);
     }
 
 }

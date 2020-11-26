@@ -7,6 +7,11 @@ import java.util.UUID;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 
 import com.anzileiro.challenge.application.container.Factory;
@@ -30,7 +35,7 @@ public class LogRepositoryImplementation implements LogRepository {
 
     @Override
     public void insertOne(Log log) {
-        entityManager.persist(this.factory.createFromDomain(log));
+        entityManager.persist(this.factory.toEntity(log));
     }
 
     @Override
@@ -40,46 +45,51 @@ public class LogRepositoryImplementation implements LogRepository {
 
     @Override
     public void insertMany(ArrayList<Log> logs) {
-
-        StringBuilder builder = new StringBuilder();
-
-        builder.append("INSERT INTO tbl_log (id, agent, date, ip, request, status) VALUES");
-
-        logs.forEach((log) -> {
-            builder.append(String.format(" ('%s', '%s', '%s', '%s', '%s', %s),", log.getId(), log.getAgent(),
-                    log.getDate(), log.getIp(), log.getRequest(), log.getStatus()));
-        });
-
-        String result = builder.substring(0, builder.length() - 1) + ";";
-        Query query = entityManager.createNativeQuery(result);
+        Query query = entityManager.createNativeQuery(this.factory.toSQL(logs));
         query.executeUpdate();
     }
 
     @Override
     public Log findOneById(UUID id) {
-        return this.factory.createFromEntity(entityManager.find(LogEntity.class, id));
+        return this.factory.toDomain(entityManager.find(LogEntity.class, id));
     }
 
     @Override
-    public List<Log> findManyByDate(String date) {
+    public ArrayList<Log> findManyByDate(String date) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<LogEntity> query = cb.createQuery(LogEntity.class);
+        Root<LogEntity> entity = query.from(LogEntity.class);
+
+        Path<String> key = entity.get("date");
+
+        Predicate predicate = cb.equal(key, date);
+
+        query.select(entity).where(predicate);
+
+        ArrayList<Log> logs = new ArrayList<Log>();
+
+        entityManager.createQuery(query).getResultList().forEach((item) -> {
+            logs.add(new Log(item.getId(), item.getDate(), item.getIp(), item.getRequest(), item.getStatus(),
+                    item.getAgent()));
+        });
+
+        return logs;
+    }
+
+    @Override
+    public ArrayList<Log> findManyByStatus(String status) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Log> findManyByStatus(String status) {
+    public ArrayList<Log> findManyByRequest(String request) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public List<Log> findManyByRequest(String request) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<Log> findManyByAgent(String agent) {
+    public ArrayList<Log> findManyByAgent(String agent) {
         // TODO Auto-generated method stub
         return null;
     }
